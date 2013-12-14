@@ -1,5 +1,5 @@
 # SNAP Data
-snap/*.csv
+snap/
 
 # History files
 .Rhistory

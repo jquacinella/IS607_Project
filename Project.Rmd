@@ -21,12 +21,27 @@ Having a deep understanding of the citizens who are using Food Stamps, including
 
 ## TODO:
 
-* Make sure graphs
-* Create decision tree trying to predict calculated column
+* Make sure graphs are labeled well
+* Create decision tree trying to predict calculated column (?)
 * Create map of USA showing scale of average % of income spent on rent
 * Show some state-level data
 
 ## Methodology
+
+### Summary
+
+1. Load the data from 2011, the latest data that has been released. Explore the data, find any oddities or interesting points
+2. Load all years of the data set, which ranges from 2003 - 2013, into multiple data frames
+3. Calculate a new column, which is the "rent" column divided by "net income" column, for each data frame.
+  * Might have to look at other columns to see which ones relating to income should be used
+4. Look at the distribution (histogram, density plot) of the % income rent for the 2011 data set
+  * Look at the distribution across sub-portions of the 2011 data set, based on state
+5. Look at the distribution (histogram, density plot) of the % income rent for all data sets
+  * Is there a general increase? Show a boxplot per year, and see how the distribution of values changes over time
+  * Is there a general increase among sub-populations?
+6. Generate map-based plot of this calculated value 
+7. Create a decision tree model to predict this value based on a sub-portion of the ~760 dimensions of the data.
+  * Clearly, dont't use the Rent or Total Income dimensions, since they are used in the calculation
 
 ### Load Data
 
@@ -34,37 +49,54 @@ Having a deep understanding of the citizens who are using Food Stamps, including
 # Set the correct path
 setwd("~/Code/Masters/IS607/Project/")
 
-# Load 2011 SNAP Data
-if(!file.exists("df_2011")){
-  df_2011 <- read.csv('snap/snap_2011.csv')
-  save(list="df_2011", file="df_2011")
+# Function will load and return one year of the SNAP data
+load_snap_data <- function(year) {
+  read.csv(paste("snap/snap_", as.character(year), ".csv", sep=''))
+}
+
+# Function will load and return SNAP data for given date range (defaults to all years)
+load_all_snap_data <- function(year_from=2003, year_to=2011) {
+  snap_data_frames <- list()
+  
+  for(year in seq(year_from, year_to)) {
+    data <- load_snap_data(year)
+    snap_data_frames[[year]] <- data
+  }
+  
+  return(snap_data_frames)
+}
+
+# Call the function to load all the data if its not on disk
+if(!file.exists("snap_data_frames")){
+    snap_data_frames <- load_all_snap_data()
+    save(list="snap_data_frames", file="snap_data_frames")
 } else {
-  load("df_2011")
+  load("snap_data_frames")
 }
 ```
 
 ### Plot Histogram of wages
 
 ```{r}
-hist(df_2011$wages1[df_2011$wages1 != 0])
-plot(density(df_2011$wages1[df_2011$wages1 != 0]))
+hist(snap_data_frames[[2011]]$WAGES1[snap_data_frames[[2011]]$WAGES1 != 0])
+plot(density(snap_data_frames[[2011]]$WAGES1[snap_data_frames[[2011]]$WAGES1 != 0]))
 ```
 
 ### Plot SSI1
 
 ```{r}
-hist(df_2011$ssi1[df_2011$ssi1 != 0], breaks=50) # Interesting spike
-plot(density(df_2011$ssi1[df_2011$ssi1 != 0]))
+hist(snap_data_frames[[2011]]$SSI1[snap_data_frames[[2011]]$SSI1 != 0], breaks=50) # Interesting spike
+plot(density(snap_data_frames[[2011]]$SSI1[snap_data_frames[[2011]]$SSI1 != 0]))
 ```
 
-Things to note:
+Things to NOTE:
 * There is a spike that is unexpected here. Why? Data artifact, or part of SSI policy?
 
 ### Plot Rent
 
 ```{r}
-hist(df_2011$rent, breaks=50)
-hist(df_2011$rent[df_2011$rent != 0], breaks=50)
+hist(snap_data_frames[[2011]]$RENT, breaks=50)
+hist(snap_data_frames[[2011]]$RENT[snap_data_frames[[2011]]$RENT != 0], breaks=50)
 ```
 
 ## Conclusions and Future Work

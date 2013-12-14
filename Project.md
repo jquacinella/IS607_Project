@@ -1,5 +1,7 @@
-Description of Project
-======================
+Description of Final Project
+============================
+
+Prepared by: James Quacinella
 
 ## Summary 
 
@@ -7,7 +9,7 @@ Description of Project
 
 The Supplemental Nutrition Assistance Program, also known as "The Food Stamp Program", is a federal aid program which provides financial assistance for purchasing food to low- and no-income people living in the U.S.  This program is administered by the U.S. Department of Agriculture, though benefits are distributed by individual U.S. states. They can be used to purchase any prepackaged edible foods, regardless of nutritional value (e.g. soft drinks and confections). 
 
-The "Food and Nutrition Service" relies on data from the SNAP Quality Control (SNAP QC) database, to monitor changes in population and policy over time. This database is an "edited version of the raw datafile of monthly case reviews conducted by State SNAP agencies to assess the accuracy of eligibility determinations and benefit calculations for each State’s SNAP caseload". Documentation from the Dept of Agriculture describes the process each state goes through to provide, from making sure populations are not oversampled, and how many samples to submit based on state population. This document also describes how the Federal government cleans the raw State data to create the SNAP QC database. [Ref 1][1]
+The "Food and Nutrition Service" relies on data from the SNAP Quality Control (SNAP QC) database, to monitor changes in population and policy over time. This database is an "edited version of the raw datafile of monthly case reviews conducted by State SNAP agencies to assess the accuracy of eligibility determinations and benefit calculations for each State’s SNAP caseload". Documentation from the Dept of Agriculture describes the process each state goes through to provide, from making sure populations are not oversampled, and how many samples to submit based on state population. This document also describes how the Federal government cleans the raw State data to create the SNAP QC database ([Ref 1][1]).
 
 
 ### Hypothesis
@@ -22,7 +24,8 @@ Having a deep understanding of the citizens who are using Food Stamps, including
 ## TODO:
 
 * Make sure graphs are labeled well
-* Create decision tree trying to predict calculated column
+* Find original website of data, link to it
+* Create decision tree trying to predict calculated column (?)
 * Create map of USA showing scale of average % of income spent on rent
 * Show some state-level data
 
@@ -43,7 +46,16 @@ Having a deep understanding of the citizens who are using Food Stamps, including
 7. Create a decision tree model to predict this value based on a sub-portion of the ~760 dimensions of the data.
   * Clearly, dont't use the Rent or Total Income dimensions, since they are used in the calculation
 
+### Preparing the Data
+
+The data from the government website had many different formats, none of which seemed to do well for R ([Ref 2][2]) I looked for ways of dealing with SAS and Stata file formats. I came across PyDTA, a python module that can read in DTA (Stata) files ([Ref 3][3]). I originally wrote a script ([exporter.py](https://github.com/jquacinella/IS607_Project/blob/master/exporter.py)) to convert the DTA file into a CSV file. However, this turned out to not be needed, as another website hosted by Penn State has copies of the data in CSV ([Ref 4][4]) 
+
+After dowloading all the years, we need to load the data into a list of data frames (one per year).
+
+
 ### Load Data
+
+This snippet of code is responsible for loading the _snap_data_frames_ list. One funciton is used for loading a data frame from a given year, while another function calls this repeatedly for years 2003 - 2011.
 
 
 ```r
@@ -78,7 +90,7 @@ if (!file.exists("snap_data_frames")) {
 ```
 
 
-### Plot Histogram of wages
+### Plot Histogram of Wages
 
 
 ```r
@@ -93,6 +105,19 @@ plot(density(snap_data_frames[[2011]]$WAGES1[snap_data_frames[[2011]]$WAGES1 !=
 ```
 
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-22.png) 
+
+```r
+
+boxplot(snap_data_frames[[2011]]$WAGES1[snap_data_frames[[2011]]$WAGES1 != 0])
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-23.png) 
+
+```r
+boxplot(snap_data_frames[[2003]]$WAGES1[snap_data_frames[[2003]]$WAGES1 != 0])
+```
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-24.png) 
 
 
 ### Plot SSI1
@@ -130,6 +155,19 @@ hist(snap_data_frames[[2011]]$RENT[snap_data_frames[[2011]]$RENT != 0], breaks =
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-42.png) 
 
+```r
+
+boxplot(snap_data_frames[[2011]]$RENT[snap_data_frames[[2011]]$RENT != 0])
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-43.png) 
+
+```r
+boxplot(snap_data_frames[[2003]]$RENT[snap_data_frames[[2003]]$RENT != 0])
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-44.png) 
+
 
 ## Conclusions and Future Work
 
@@ -138,9 +176,11 @@ Future work would not only look at this SNAP data from many different views, but
 ## Useful Links
 
 * [SNAP Wikipedia Page](http://en.wikipedia.org/wiki/Supplemental_Nutrition_Assistance_Program)
-* [SNAP Data Worksheet](http://hostm142.mathematica-mpr.com/fns/2011/tech%20doc%202011.pdf_2011)
-* [Mirror Of Data](http://soda.pop.psu.edu/cgi-bin/broker?_SERVICE=sodapop&_PROGRAM=sodaprog.extract_function.sas&coll=snap&ds=qcfy2011)
-* [PyDTA](http://presbrey.mit.edu/PyDTA#export_to_CSV)
 * [ZH Link](http://www.zerohedge.com/news/2013-12-09/rent-too-damned-high)
 
+
+
 [1]: http://hostm142.mathematica-mpr.com/fns/2011/tech%20doc%202011.pdf_2011 "SNAP Data Document"
+[2]: TODO: fill this in "Origin Site for Data"
+[3]: http://presbrey.mit.edu/PyDTA#export_to_CSV "Python Stata (DTA) Module"
+[4]: http://soda.pop.psu.edu/cgi-bin/broker?_SERVICE=sodapop&_PROGRAM=sodaprog.extract_function.sas&coll=snap&ds=qcfy2011 "Penn State Mirror Of Data"

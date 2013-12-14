@@ -1,3 +1,6 @@
+# SNAP Data
+snap/*.csv
+
 # History files
 .Rhistory
 

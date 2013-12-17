@@ -36,15 +36,10 @@ Having a deep understanding of the citizens who are using Food Stamps, including
 1. Load the data from 2011, the latest data that has been released. Explore the data, find any oddities or interesting points
 2. Load all years of the data set, which ranges from 2003 - 2013, into multiple data frames
 3. Calculate a new column, which is the "rent" column divided by "net income" column, for each data frame.
-  * Might have to look at other columns to see which ones relating to income should be used
 4. Look at the distribution (histogram, density plot) of the % income rent for the 2011 data set
-  * Look at the distribution across sub-portions of the 2011 data set, based on state
 5. Look at the distribution (histogram, density plot) of the % income rent for all data sets
   * Is there a general increase? Show a boxplot per year, and see how the distribution of values changes over time
-  * Is there a general increase among sub-populations?
 6. Generate map-based plot of this calculated value 
-7. Create a decision tree model to predict this value based on a sub-portion of the ~760 dimensions of the data.
-  * Clearly, dont't use the Rent or Total Income dimensions, since they are used in the calculation
 
 ### Preparing the Data
 
@@ -172,6 +167,17 @@ subset_snap_by_column <- function(colname) {
     dataset <- list()
     for (year in seq(YEAR_MIN, YEAR_MAX)) {
         dataset[[as.character(year)]] <- snap_data_frames[[year]][, colname]
+    }
+    return(dataset)
+}
+
+# Subset all the datasets by column name Returns list that maps 'year':
+# column
+subset_snap_by_column_and_state <- function(colname, state) {
+    dataset <- list()
+    for (year in seq(YEAR_MIN, YEAR_MAX)) {
+        dataset[[as.character(year)]] <- snap_data_frames[[year]][snap_data_frames[[year]]$STATE == 
+            state, colname]
     }
     return(dataset)
 }
@@ -324,11 +330,6 @@ lines(seq(YEAR_MIN, YEAR_MAX), percent_no_income, "b")
 
 ![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
 
-```r
-
-par(mfrow = c(1, 1))
-```
-
 
 Now lets look at Unearned Income:
 
@@ -376,10 +377,6 @@ boxplot(plots, ylab = "Final Adjusted Gross Unearned Income", xlab = "Dataset Ye
 
 ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
 
-```r
-par(mfrow = c(1, 1))
-```
-
 
 ### Plot Rent
 
@@ -418,11 +415,6 @@ boxplot(subset_snap_by_column("ADJ_RENT"), ylab = "Adjusted Reported Rent",
 
 ![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
 
-```r
-
-par(mfrow = c(1, 1))
-```
-
 
 ### Ratio of Rent to Income
 
@@ -430,6 +422,7 @@ Lets calculate the ratio of the _RENT_ column and the _FSGRINC_ column and plot 
 
 
 ```r
+par(mfrow = c(1, 1))
 if (!file.exists("snap_data_frames")) {
     for (year in seq(YEAR_MIN, YEAR_MAX)) {
         snap_data_frames[[year]]$RENT_INC_RATIO <- (snap_data_frames[[year]]$RENT + 
@@ -469,6 +462,66 @@ lines(seq(YEAR_MIN, YEAR_MAX), stats$stats[3, ], "b")
 
 
 If we look at the distributions for income, we see that 25th percentile (the bottom of the box in the boxplots) decreases over time. Therefore, the IQR is generally spreading downwards. The rent boxplots, however, seem to stay steady. This would insinutate that the ratio of rent to income is increasing due to lower total income, not changing values of rent.
+
+For completion, here is the percentage of data points (per year) that are 'outliers' in the boxplots (approximately 5% over all datasets):
+
+
+```r
+percent_outliers <- sapply(seq(YEAR_MIN, YEAR_MAX), function(year) {
+    length(snap_data_frames[[year]]$RENT_INC_RATIO[snap_data_frames[[year]]$RENT_INC_RATIO > 
+        stats$stats[5, year - 2001]])/length(snap_data_frames[[year]]$RENT_INC_RATIO)
+})
+plot(seq(YEAR_MIN, YEAR_MAX), percent_outliers, ylab = "Percentage", xlab = "Dataset", 
+    main = "Percentage of Data Points that are Outliers")
+lines(seq(YEAR_MIN, YEAR_MAX), percent_outliers, "b")
+```
+
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+
+
+### Map of Change in Median Ratio
+
+Here we can sub-set the data by state, and see the change in rent-to-income ratio for that state only. Here is an example for New York:
+
+
+```r
+plot_ratio_by_state <- function(state) {
+    boxplot(subset_snap_by_column_and_state("RENT_INC_RATIO", state), ylab = "Rent / Income", 
+        xlab = "Dataset Year", main = paste("Distribution of Rent / Income Ratio in", 
+            state, " \n(Zoomed In)"), ylim = c(0, 2))
+}
+
+plot_ratio_by_state(36)
+```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
+
+
+*TODO:* We can also generate a map of the USA, colored by what the difference is in this ration over the course of a decade:
+
+
+```r
+state_change <- list()
+states <- unique(snap_data_frames[[2011]]$STATE)
+for (state in states) {
+    x <- median(snap_data_frames[[2011]]$RENT_INC_RATIO[snap_data_frames[[2011]]$STATE == 
+        state])
+    y <- median(snap_data_frames[[2002]]$RENT_INC_RATIO[snap_data_frames[[2002]]$STATE == 
+        state])
+    state_change[[state]] <- x - y
+}
+
+
+library(maps)
+# show polygon names in order
+map("state", fill = TRUE, plot = FALSE, names = TRUE)
+
+# make first polygon have color 1, second 2, etc.
+map("state", fill = TRUE, col = 1:63)
+```
+
+
+
 
 ## Potential Flaws
 

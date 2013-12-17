@@ -397,7 +397,17 @@ lines(seq(YEAR_MIN, YEAR_MAX), stats$stats[3,], 'b')
 
 If we look at the distributions for income, we see that 25th percentile (the bottom of the box in the boxplots) decreases over time. Therefore, the IQR is generally spreading downwards. The rent boxplots, however, seem to stay steady. This would insinutate that the ratio of rent to income is increasing due to lower total income, not changing values of rent.
 
+For completion, here is the percentage of data points (per year) that are 'outliers' in the boxplots (approximately 6% over all datasets):
+
+```{r}
+percent_outliers <- sapply(seq(YEAR_MIN, YEAR_MAX), function(year) { length(snap_data_frames[[year]]$RENT_INC_RATIO[snap_data_frames[[year]]$RENT_INC_RATIO > stats$stats[5, year - 2001]]) / length(snap_data_frames[[year]]$RENT_INC_RATIO) })
+plot(seq(YEAR_MIN, YEAR_MAX), percent_outliers, ylab="Percentage", xlab="Dataset", main="Percentage of Data Points that are Outliers")
+lines(seq(YEAR_MIN, YEAR_MAX), percent_outliers, 'b')
+```
+
 ### Map of Change in Median Ratio
+
+Here we can sub-set the data by state, and see the change in rent-to-income ratio for that state only. Here is an example for New York:
 
 ```{r}
 plot_ratio_by_state <- function(state) {
@@ -411,7 +421,7 @@ plot_ratio_by_state <- function(state) {
 plot_ratio_by_state(36)
 ```
 
-Wec an also generate a map of the USA, colored by what the difference is in this ration over the course of a decade:
+*TODO:* We can also generate a map of the USA, colored by what the difference is in this ration over the course of a decade:
 
 ```{r message=FALSE,eval=FALSE}
 state_change <- list()

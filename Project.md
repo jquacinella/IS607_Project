@@ -9,7 +9,7 @@ Prepared by: James Quacinella
 
 The Supplemental Nutrition Assistance Program, also known as "The Food Stamp Program", is a federal aid program which provides financial assistance for purchasing food to low- and no-income people living in the U.S.  This program is administered by the U.S. Department of Agriculture, though benefits are distributed by individual U.S. states. They can be used to purchase any prepackaged edible foods, regardless of nutritional value (e.g. soft drinks and confections). 
 
-The "Food and Nutrition Service" relies on data from the SNAP Quality Control (SNAP QC) database, to monitor changes in population and policy over time. This database is an "edited version of the raw datafile of monthly case reviews conducted by State SNAP agencies to assess the accuracy of eligibility determinations and benefit calculations for each State’s SNAP caseload". Documentation from the Dept of Agriculture describes the process each state goes through to provide, from making sure populations are not oversampled, and how many samples to submit based on state population. This document also describes how the Federal government cleans the raw State data to create the SNAP QC database ([Ref 1][1]).
+The "Food and Nutrition Service" relies on data from the SNAP Quality Control (SNAP QC) database, to monitor changes in population and policy over time. This database is an "edited version of the raw datafile of monthly case reviews conducted by State SNAP agencies to assess the accuracy of eligibility determinations and benefit calculations for each State’s SNAP caseload". Documentation from the Dept of Agriculture describes the process each state goes through to provide, from making sure populations are not oversampled, and how many samples to submit based on state population. This document also describes how the Federal government cleans the raw State data to create the SNAP QC database ^[Ref1][1] .
 
 
 ### Hypothesis
@@ -34,23 +34,22 @@ Having a deep understanding of the citizens who are using Food Stamps, including
 ### Summary
 
 1. Load the data from 2011, the latest data that has been released. Explore the data, find any oddities or interesting points
-2. Load all years of the data set, which ranges from 2003 - 2013, into multiple data frames
+2. Load all years of the data set, which ranges from 2002 - 2011, into multiple data frames
 3. Calculate a new column, which is the "rent" column divided by "net income" column, for each data frame.
-4. Look at the distribution (histogram, density plot) of the % income rent for the 2011 data set
-5. Look at the distribution (histogram, density plot) of the % income rent for all data sets
+4. Look at the distribution (histogram, density plot) of the % income rent for all data sets
   * Is there a general increase? Show a boxplot per year, and see how the distribution of values changes over time
 6. Generate map-based plot of this calculated value 
 
 ### Preparing the Data
 
-The data from the government website had many different formats, none of which seemed to do well for R ([Ref 2][2]) I looked for ways of dealing with SAS and Stata file formats. I came across PyDTA, a python module that can read in DTA (Stata) files ([Ref 3][3]). I originally wrote a script ([exporter.py](https://github.com/jquacinella/IS607_Project/blob/master/exporter.py)) to convert the DTA file into a CSV file. However, this turned out to not be needed, as another website hosted by Penn State has copies of the data in CSV ([Ref 4][4]) 
+The data from the government website had many different formats, none of which seemed to do well for R^[Ref2][2] . I looked for ways of dealing with SAS and Stata file formats. I came across PyDTA, a python module that can read in DTA (Stata) files^[Ref3][3] . I originally wrote a script ([exporter.py](https://github.com/jquacinella/IS607_Project/blob/master/exporter.py)) to convert the DTA file into a CSV file. However, this turned out to not be needed, as another website hosted by Penn State has copies of the data in CSV^[Ref4][4] .
 
 After dowloading all the years, we need to load the data into a list of data frames (one per year).
 
 
 ### Load Data
 
-This snippet of code is responsible for loading the _snap_data_frames_ list. One funciton is used for loading a data frame from a given year, while another function calls this repeatedly for years 2002 - 2011.
+This snippet of code is responsible for loading the _snap_data_frames_ list. One function is used for loading a data frame from a given year, while another function calls this repeatedly for years 2002 - 2011. Note, after we load the data in the _snap_data_frames_ variable, we save it to disk to speed up the execution in the future.
 
 
 ```r
@@ -94,12 +93,7 @@ if (!file.exists("snap_data_frames")) {
 
 ### Cleaning the Data
 
-Here are issues that arose and how I solved them:
-* SNAP data from previous years was difficult to get, due to the bad web interface from Penn. I mistakenly downloaded truncated files and did not see that there were missing rows from many data sets.
-
-
-
-
+The data was generally very clean, and didn't require anything to do done to it. However, SNAP data from previous years was difficult to get, due to the bad web interface from Penn. I mistakenly downloaded truncated files and did not see that there were missing rows from many data sets.
 
 ### Plot Histogram of Wages
 
@@ -107,25 +101,21 @@ The column _FSGRINC_ (which is the sum of _FSEARN_ and _FSUNEARN_) is the Final 
 
 
 ```r
-hist(snap_data_frames[[2011]]$FSGRINC, main = "Histogram of FSGRINC (2011)", 
-    breaks = 50, xlim = c(0, 5000))
+par(mfrow = c(1, 2))
+hist(snap_data_frames[[2011]]$FSGRINC, ylab = "Frequency", xlab = "Gross Income", 
+    main = "Histogram of FSGRINC (2011)", breaks = 50, xlim = c(0, 5000))
+hist(snap_data_frames[[2002]]$FSGRINC, ylab = "Frequency", xlab = "Gross Income", 
+    main = "Histogram of FSGRINC (2002)", breaks = 50, xlim = c(0, 5000))
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-31.png) 
-
-```r
-hist(snap_data_frames[[2002]]$FSGRINC, main = "Histogram of FSGRINC (2002)", 
-    breaks = 50, xlim = c(0, 5000))
-```
-
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-32.png) 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
 
 
 Lets compare the density plots of 2011 versus 2002. The first plot is all the data; the second plot exlucdes data points that have 0 as their reported income.
 
 
 ```r
-par(mfrow = c(1, 1))
+par(mfrow = c(1, 2))
 FSGRINC.density.2011 <- density(snap_data_frames[[2011]]$FSGRINC)
 FSGRINC.density.2002 <- density(snap_data_frames[[2002]]$FSGRINC)
 plot(range(FSGRINC.density.2011$x, FSGRINC.density.2002$x), range(FSGRINC.density.2011$y, 
@@ -133,11 +123,6 @@ plot(range(FSGRINC.density.2011$x, FSGRINC.density.2002$x), range(FSGRINC.densit
     main = "Density of Gross Countable Income (2011=red, 2002=blue")
 lines(FSGRINC.density.2011, col = "red")
 lines(FSGRINC.density.2002, col = "blue")
-```
-
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-41.png) 
-
-```r
 
 FSGRINCNZ.density.2011 <- density(snap_data_frames[[2011]]$FSGRINC[snap_data_frames[[2011]]$FSGRINC != 
     0])
@@ -150,14 +135,10 @@ lines(FSGRINCNZ.density.2011, col = "red")
 lines(FSGRINCNZ.density.2002, col = "blue")
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-42.png) 
-
-```r
-par(op)
-```
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
 
 
-Lets try plotting box plots to see the differences in the summary data across all the years:
+Now, lets define some functions to help subset our data across all the data sets:
 
 
 ```r
@@ -181,15 +162,18 @@ subset_snap_by_column_and_state <- function(colname, state) {
     }
     return(dataset)
 }
+```
+
+
+Lets try plotting box plots to see the differences in the summary data across all the years:
+
+
+```r
+par(mfrow = c(1, 2))
 
 # Print boxplot of FSGRINC across all years (zoomed out)
 boxplot(subset_snap_by_column("FSGRINC"), ylab = "Final Gross Countable Unit Income", 
     xlab = "Dataset", main = "Distribution of FSGRINC Across All Years \n(Zoomed Out)")
-```
-
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-51.png) 
-
-```r
 
 # Print boxplot of FSGRINC across all years (zoomed in)
 boxplot(subset_snap_by_column("FSGRINC"), ylab = "Final Gross Countable Unit Income", 
@@ -197,12 +181,12 @@ boxplot(subset_snap_by_column("FSGRINC"), ylab = "Final Gross Countable Unit Inc
     ylim = c(0, 1500))
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-52.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 
 This is curious: it seems that at-least the median wages in 2011 were higher than that in 2002. This could be due to many factors: recessions, bursted bubbles, etc. Also note, how the variance is getting wider: the area in the middle 50% of the distribution gets wider by the year.
 
-However, one thing I should take care of is adjusting for inflation. To do so, we need to "adjust all dollar figures so that they are expressed in terms of dollars in that year. Often the base year is chosen to be the current year or the final year of study data." ([Ref 5][5]). This can be done using a library in R called _quantmod_. Example of its usage is here ([Ref 6][6]).
+However, one thing I should take care of is adjusting for inflation. To do so, we need to "adjust all dollar figures so that they are expressed in terms of dollars in that year. Often the base year is chosen to be the current year or the final year of study data"^[Ref5][5] . This can be done using a library in R called _quantmod_. Example of its usage is here^[Ref6][6] .
 
 
 ```r
@@ -463,7 +447,7 @@ lines(seq(YEAR_MIN, YEAR_MAX), stats$stats[3, ], "b")
 
 If we look at the distributions for income, we see that 25th percentile (the bottom of the box in the boxplots) decreases over time. Therefore, the IQR is generally spreading downwards. The rent boxplots, however, seem to stay steady. This would insinutate that the ratio of rent to income is increasing due to lower total income, not changing values of rent.
 
-For completion, here is the percentage of data points (per year) that are 'outliers' in the boxplots (approximately 5% over all datasets):
+For completion, here is the percentage of data points (per year) that are 'outliers' in the boxplots (approximately 6% over all datasets):
 
 
 ```r

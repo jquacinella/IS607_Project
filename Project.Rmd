@@ -21,14 +21,6 @@ I'll be invetsigating if there is a trend over time for SNAP receipients to pay 
 
 Having a deep understanding of the citizens who are using Food Stamps, including their behaviour and how they react to outside changes in the economy and government policy, is critical to smart governance. This deep understanding should be guided and informed by data. The specific hypothesis, that the beneficiaries of government help are seeing more of their income go towards a rising rent burden, is just one of many that city, state of the federal government should be concerned about. In this specific data set, each 'SNAP unit' has approximately 760 variables (depending on the year of collection), allowing for many different views on this one data set.
 
-## TODO:
-
-* Make sure graphs are labeled well
-* Find original website of data, link to it
-* Create decision tree trying to predict calculated column (?)
-* Create map of USA showing scale of average % of income spent on rent
-* Show some state-level data
-
 ## Methodology
 
 ### Summary
@@ -427,26 +419,42 @@ plot_ratio_by_state <- function(state) {
 }
 
 plot_ratio_by_state(36)
-```
 
-*TODO:* We can also generate a map of the USA, colored by what the difference is in this ration over the course of a decade:
-
-```{r message=FALSE,eval=FALSE}
-state_change <- list()
 states <- unique(snap_data_frames[[2011]]$STATE)
+
+state_change <- list()
 for (state in states) {
   x <- median(snap_data_frames[[2011]]$RENT_INC_RATIO[snap_data_frames[[2011]]$STATE==state])
   y <- median(snap_data_frames[[2002]]$RENT_INC_RATIO[snap_data_frames[[2002]]$STATE==state])
   state_change[[state]] <- x - y
 }
 
+state_median <- list()
+for (state in states) {
+  state_median[[state]] <- median(snap_data_frames[[2011]]$RENT_INC_RATIO[snap_data_frames[[2011]]$STATE==state])
+}
 
 library(maps)
-# show polygon names in order
-map("state", fill = TRUE, plot = FALSE, names = TRUE)
 
 # make first polygon have color 1, second 2, etc.
-map("state", fill = TRUE, col = 1:63) 
+x <- unlist(state_change)
+x_norm <- (x - min(x)) / (max(x) - min(x))
+col_fun <- colorRamp(c("blue", "red"))
+rgb_cols <- col_fun(x_norm)
+colors <- rgb(rgb_cols, maxColorValue = 256)
+
+map("state", fill = TRUE, col = colors) 
+title("Change Median Ratio of Rent to Income from 2002 to 2011")
+
+# make first polygon have color 1, second 2, etc.
+x <- unlist(state_median)
+x_norm <- (x - min(x)) / (max(x) - min(x))
+col_fun <- colorRamp(c("blue", "red"))
+rgb_cols <- col_fun(x_norm)
+colors <- rgb(rgb_cols, maxColorValue = 256)
+
+map("state", fill = TRUE, col = colors) 
+title("Ratio of Rent to Income, 2011")
 ```
 
 

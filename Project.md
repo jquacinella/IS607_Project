@@ -9,7 +9,7 @@ Prepared by: James Quacinella
 
 The Supplemental Nutrition Assistance Program, also known as "The Food Stamp Program", is a federal aid program which provides financial assistance for purchasing food to low- and no-income people living in the U.S.  This program is administered by the U.S. Department of Agriculture, though benefits are distributed by individual U.S. states. They can be used to purchase any prepackaged edible foods, regardless of nutritional value (e.g. soft drinks and confections). 
 
-The "Food and Nutrition Service" relies on data from the SNAP Quality Control (SNAP QC) database, to monitor changes in population and policy over time. This database is an "edited version of the raw datafile of monthly case reviews conducted by State SNAP agencies to assess the accuracy of eligibility determinations and benefit calculations for each State’s SNAP caseload". Documentation from the Dept of Agriculture describes the process each state goes through to provide, from making sure populations are not oversampled, and how many samples to submit based on state population. This document also describes how the Federal government cleans the raw State data to create the SNAP QC database ^[Ref1][1] .
+The "Food and Nutrition Service" relies on data from the SNAP Quality Control (SNAP QC) database, to monitor changes in population and policy over time. This database is an "edited version of the raw datafile of monthly case reviews conducted by State SNAP agencies to assess the accuracy of eligibility determinations and benefit calculations for each State’s SNAP caseload". Documentation from the Dept of Agriculture describes the process each state goes through to provide, from making sure populations are not oversampled, and how many samples to submit based on state population. This document also describes how the Federal government cleans the raw State data to create the SNAP QC database ^[1][1] .
 
 
 ### Hypothesis
@@ -42,7 +42,7 @@ Having a deep understanding of the citizens who are using Food Stamps, including
 
 ### Preparing the Data
 
-The data from the government website had many different formats, none of which seemed to do well for R^[Ref2][2] . I looked for ways of dealing with SAS and Stata file formats. I came across PyDTA, a python module that can read in DTA (Stata) files^[Ref3][3] . I originally wrote a script ([exporter.py](https://github.com/jquacinella/IS607_Project/blob/master/exporter.py)) to convert the DTA file into a CSV file. However, this turned out to not be needed, as another website hosted by Penn State has copies of the data in CSV^[Ref4][4] .
+The data from the government website had many different formats, none of which seemed to do well for R^[2][2] . I looked for ways of dealing with SAS and Stata file formats. I came across PyDTA, a python module that can read in DTA (Stata) files^[3][3] . I originally wrote a script ([exporter.py](https://github.com/jquacinella/IS607_Project/blob/master/exporter.py)) to convert the DTA file into a CSV file. However, this turned out to not be needed, as another website hosted by Penn State has copies of the data in CSV^[4][4] .
 
 After dowloading all the years, we need to load the data into a list of data frames (one per year).
 
@@ -186,7 +186,7 @@ boxplot(subset_snap_by_column("FSGRINC"), ylab = "Final Gross Countable Unit Inc
 
 This is curious: it seems that at-least the median wages in 2011 were higher than that in 2002. This could be due to many factors: recessions, bursted bubbles, etc. Also note, how the variance is getting wider: the area in the middle 50% of the distribution gets wider by the year.
 
-However, one thing I should take care of is adjusting for inflation. To do so, we need to "adjust all dollar figures so that they are expressed in terms of dollars in that year. Often the base year is chosen to be the current year or the final year of study data"^[Ref5][5] . This can be done using a library in R called _quantmod_. Example of its usage is here^[Ref6][6] .
+However, one thing I should take care of is adjusting for inflation. To do so, we need to "adjust all dollar figures so that they are expressed in terms of dollars in that year. Often the base year is chosen to be the current year or the final year of study data"^[5][5] . This can be done using a library in R called _quantmod_. Example of its usage is here^[6][6] .
 
 
 ```r
@@ -445,7 +445,7 @@ lines(seq(YEAR_MIN, YEAR_MAX), stats$stats[3, ], "b")
 ![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
 
-If we look at the distributions for income, we see that 25th percentile (the bottom of the box in the boxplots) decreases over time. Therefore, the IQR is generally spreading downwards. The rent boxplots, however, seem to stay steady. This would insinutate that the ratio of rent to income is increasing due to lower total income, not changing values of rent.
+If we look at the distributions for income, we see that 25th percentile (the bottom of the box in the boxplots) decreases over time. Theore, the IQR is generally spreading downwards. The rent boxplots, however, seem to stay steady. This would insinutate that the ratio of rent to income is increasing due to lower total income, not changing values of rent.
 
 For completion, here is the percentage of data points (per year) that are 'outliers' in the boxplots (approximately 6% over all datasets):
 
@@ -478,15 +478,13 @@ plot_ratio_by_state <- function(state) {
 plot_ratio_by_state(36)
 ```
 
-![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
-
-
-*TODO:* We can also generate a map of the USA, colored by what the difference is in this ration over the course of a decade:
-
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-161.png) 
 
 ```r
-state_change <- list()
+
 states <- unique(snap_data_frames[[2011]]$STATE)
+
+state_change <- list()
 for (state in states) {
     x <- median(snap_data_frames[[2011]]$RENT_INC_RATIO[snap_data_frames[[2011]]$STATE == 
         state])
@@ -495,14 +493,41 @@ for (state in states) {
     state_change[[state]] <- x - y
 }
 
+state_median <- list()
+for (state in states) {
+    state_median[[state]] <- median(snap_data_frames[[2011]]$RENT_INC_RATIO[snap_data_frames[[2011]]$STATE == 
+        state])
+}
 
 library(maps)
-# show polygon names in order
-map("state", fill = TRUE, plot = FALSE, names = TRUE)
 
 # make first polygon have color 1, second 2, etc.
-map("state", fill = TRUE, col = 1:63)
+x <- unlist(state_change)
+x_norm <- (x - min(x))/(max(x) - min(x))
+col_fun <- colorRamp(c("blue", "red"))
+rgb_cols <- col_fun(x_norm)
+colors <- rgb(rgb_cols, maxColorValue = 256)
+
+map("state", fill = TRUE, col = colors)
+title("Change Median Ratio of Rent to Income from 2002 to 2011")
 ```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-162.png) 
+
+```r
+
+# make first polygon have color 1, second 2, etc.
+x <- unlist(state_median)
+x_norm <- (x - min(x))/(max(x) - min(x))
+col_fun <- colorRamp(c("blue", "red"))
+rgb_cols <- col_fun(x_norm)
+colors <- rgb(rgb_cols, maxColorValue = 256)
+
+map("state", fill = TRUE, col = colors)
+title("Ratio of Rent to Income, 2011")
+```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-163.png) 
 
 
 

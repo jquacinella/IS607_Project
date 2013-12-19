@@ -470,12 +470,16 @@ plot_ratio_by_state <- function(state) {
 plot_ratio_by_state(36)
 ```
 
-![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-161.png) 
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
 
 ```r
 
 states <- unique(snap_data_frames[[2011]]$STATE)
+```
 
+
+
+```r
 state_change <- list()
 for (state in states) {
     x <- median(snap_data_frames[[2011]]$RENT_INC_RATIO[snap_data_frames[[2011]]$STATE == 
@@ -493,35 +497,36 @@ for (state in states) {
 
 library(maps)
 
-# make first polygon have color 1, second 2, etc.
-x <- unlist(state_change)
-x_norm <- (x - min(x))/(max(x) - min(x))
-col_fun <- colorRamp(c("blue", "red"))
-rgb_cols <- col_fun(x_norm)
-colors <- rgb(rgb_cols, maxColorValue = 256)
+# This function will generate a list of colors
+gen_colors <- function(x) {
+    x <- unlist(state_change)
+    x_norm <- (x - min(x))/(max(x) - min(x))
+    col_fun <- colorRamp(c("yellow", "red"))
+    rgb_cols <- col_fun(x_norm)
+    return(rgb(rgb_cols, maxColorValue = 256))
+}
 
+# Generate list of colors
+colors <- gen_colors(unlist(state_change))
+
+# Map the delat of the ration from 2011 to 2002 for all states
 map("state", fill = TRUE, col = colors)
 title("Change Median Ratio of Rent to Income from 2002 to 2011")
 ```
 
-![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-162.png) 
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-171.png) 
 
 ```r
 
-# make first polygon have color 1, second 2, etc.
-x <- unlist(state_median)
-x_norm <- (x - min(x))/(max(x) - min(x))
-col_fun <- colorRamp(c("blue", "red"))
-rgb_cols <- col_fun(x_norm)
-colors <- rgb(rgb_cols, maxColorValue = 256)
+# Generate list of colors
+colors <- gen_colors(unlist(state_median))
 
+# Plot ratio on map using new generated color
 map("state", fill = TRUE, col = colors)
 title("Ratio of Rent to Income, 2011")
 ```
 
-![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-163.png) 
-
-
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-172.png) 
 
 
 ## Potential Flaws

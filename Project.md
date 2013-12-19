@@ -21,14 +21,6 @@ I'll be invetsigating if there is a trend over time for SNAP receipients to pay 
 
 Having a deep understanding of the citizens who are using Food Stamps, including their behaviour and how they react to outside changes in the economy and government policy, is critical to smart governance. This deep understanding should be guided and informed by data. The specific hypothesis, that the beneficiaries of government help are seeing more of their income go towards a rising rent burden, is just one of many that city, state of the federal government should be concerned about. In this specific data set, each 'SNAP unit' has approximately 760 variables (depending on the year of collection), allowing for many different views on this one data set.
 
-## TODO:
-
-* Make sure graphs are labeled well
-* Find original website of data, link to it
-* Create decision tree trying to predict calculated column (?)
-* Create map of USA showing scale of average % of income spent on rent
-* Show some state-level data
-
 ## Methodology
 
 ### Summary

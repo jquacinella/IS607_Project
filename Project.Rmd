@@ -400,7 +400,7 @@ If we look at the distributions for income, we see that 25th percentile (the bot
 Now lets see how many people have a ratio of 1/3 or more, which is generally considered 'affordable housing':
 
 ```{r}
-percent_unaffordable <- sapply(seq(YEAR_MIN, YEAR_MAX), function(year) { length(snap_data_frames[[year]]$RENT_INC_RATIO[snap_data_frames[[year]]$RENT_INC_RATIO] > 1/3) / length(snap_data_frames[[year]]$RENT_INC_RATIO) })
+percent_unaffordable <- sapply(seq(YEAR_MIN, YEAR_MAX), function(year) { length(snap_data_frames[[year]]$RENT_INC_RATIO[snap_data_frames[[year]]$RENT_INC_RATIO] >= 1/3) / length(snap_data_frames[[year]]$RENT_INC_RATIO) })
 
 plot(seq(YEAR_MIN, YEAR_MAX), percent_unaffordable, ylab="Percentage", xlab="Dataset", main="Percentage of SNAP Units that are not in Affordable Housing")
 

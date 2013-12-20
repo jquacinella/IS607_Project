@@ -439,6 +439,24 @@ lines(seq(YEAR_MIN, YEAR_MAX), stats$stats[3, ], "b")
 
 If we look at the distributions for income, we see that 25th percentile (the bottom of the box in the boxplots) decreases over time. Theore, the IQR is generally spreading downwards. The rent boxplots, however, seem to stay steady. This would insinutate that the ratio of rent to income is increasing due to lower total income, not changing values of rent.
 
+Now lets see how many people have a ratio of 1/3 or more, which is generally considered 'affordable housing':
+
+
+```r
+percent_unaffordable <- sapply(seq(YEAR_MIN, YEAR_MAX), function(year) {
+    length(snap_data_frames[[year]]$RENT_INC_RATIO[snap_data_frames[[year]]$RENT_INC_RATIO] >= 
+        1/3)/length(snap_data_frames[[year]]$RENT_INC_RATIO)
+})
+
+plot(seq(YEAR_MIN, YEAR_MAX), percent_unaffordable, ylab = "Percentage", xlab = "Dataset", 
+    main = "Percentage of SNAP Units that are not in Affordable Housing")
+
+lines(seq(YEAR_MIN, YEAR_MAX), percent_unaffordable, "b")
+```
+
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+
+
 For completion, here is the percentage of data points (per year) that are 'outliers' in the boxplots (approximately 6% over all datasets):
 
 
@@ -452,7 +470,7 @@ plot(seq(YEAR_MIN, YEAR_MAX), percent_outliers, ylab = "Percentage", xlab = "Dat
 lines(seq(YEAR_MIN, YEAR_MAX), percent_outliers, "b")
 ```
 
-![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
 
 
 ### Map of Change in Median Ratio
@@ -470,7 +488,7 @@ plot_ratio_by_state <- function(state) {
 plot_ratio_by_state(36)
 ```
 
-![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17.png) 
 
 ```r
 
@@ -519,7 +537,7 @@ map("state", fill = TRUE, col = colors)
 title("Change Median Ratio of Rent to Income from 2002 to 2011")
 ```
 
-![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-171.png) 
+![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-181.png) 
 
 ```r
 
@@ -529,7 +547,7 @@ map("state", fill = TRUE, col = colors)
 title("Median Ratio of Rent to Income, 2011")
 ```
 
-![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-172.png) 
+![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-182.png) 
 
 ```r
 
@@ -539,7 +557,7 @@ map("state", fill = TRUE, col = colors)
 title("Upper Whisker of Ratio of Rent to Income, 2011")
 ```
 
-![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-173.png) 
+![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-183.png) 
 
 
 ## Potential Flaws

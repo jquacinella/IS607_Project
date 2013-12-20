@@ -407,7 +407,8 @@ if (!file.exists("snap_data_frames")) {
 }
 
 # Boxplot for these ratios
-boxplot(subset_snap_by_column("RENT_INC_RATIO"))
+boxplot(subset_snap_by_column("RENT_INC_RATIO"), ylab = "Ratio of Rent to Income", 
+    xlab = "Dataset Year", main = "Ratio of Rent to Income Over a Decade")
 ```
 
 ![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
@@ -418,7 +419,8 @@ Ok, thats a bit ugly. This is due to a lot of extreme values due to either no re
 
 ```r
 # Lets trim the output for reasonable values
-stats <- boxplot(subset_snap_by_column("RENT_INC_RATIO"), ylim = c(0, 2))
+stats <- boxplot(subset_snap_by_column("RENT_INC_RATIO"), ylim = c(0, 2), ylab = "Ratio of Rent to Income", 
+    xlab = "Dataset Year", main = "Ratio of Rent to Income Over a Decade")
 ```
 
 ![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
@@ -588,7 +590,7 @@ Future work would not only look at this SNAP data from many different views, but
 
 
 [1]: http://hostm142.mathematica-mpr.com/fns/2011/tech%20doc%202011.pdf_2011 "SNAP Data Document"
-[2]: TODO: fill this in "Origin Site for Data"
+[2]: http://hostm142.mathematica-mpr.com/fns/download.htm "SNAP Data"
 [3]: http://presbrey.mit.edu/PyDTA#export_to_CSV "Python Stata (DTA) Module"
 [4]: http://soda.pop.psu.edu/cgi-bin/broker?_SERVICE=sodapop&_PROGRAM=sodaprog.extract_function.sas&coll=snap&ds=qcfy2011 "Penn State Mirror Of Data"
 [5]: http://www.herc.research.va.gov/resources/faq_a03.asp "Adjusting for Inflation"

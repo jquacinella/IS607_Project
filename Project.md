@@ -495,21 +495,26 @@ for (state in states) {
         state])
 }
 
+state_upper_whisker <- list()
+for (state in states) {
+    state_upper_whisker[[state]] <- boxplot.stats(snap_data_frames[[2011]]$RENT_INC_RATIO[snap_data_frames[[2011]]$STATE == 
+        state])$stats[5]
+}
+
 library(maps)
 
 # This function will generate a list of colors
 gen_colors <- function(x) {
-    x <- unlist(state_change)
-    x_norm <- (x - min(x))/(max(x) - min(x))
+    x_vec <- unlist(x)
+    x_norm <- (x_vec - min(x_vec))/(max(x_vec) - min(x_vec))
     col_fun <- colorRamp(c("yellow", "red"))
     rgb_cols <- col_fun(x_norm)
     return(rgb(rgb_cols, maxColorValue = 256))
 }
 
-# Generate list of colors
-colors <- gen_colors(unlist(state_change))
 
-# Map the delat of the ration from 2011 to 2002 for all states
+# Map the delta of the ration from 2011 to 2002 for all states
+colors <- gen_colors(unlist(state_change))
 map("state", fill = TRUE, col = colors)
 title("Change Median Ratio of Rent to Income from 2002 to 2011")
 ```
@@ -518,15 +523,23 @@ title("Change Median Ratio of Rent to Income from 2002 to 2011")
 
 ```r
 
-# Generate list of colors
-colors <- gen_colors(unlist(state_median))
-
 # Plot ratio on map using new generated color
+colors <- gen_colors(unlist(state_median))
 map("state", fill = TRUE, col = colors)
-title("Ratio of Rent to Income, 2011")
+title("Median Ratio of Rent to Income, 2011")
 ```
 
 ![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-172.png) 
+
+```r
+
+# Plot upper whisker value of ratio on map using new generated color
+colors <- gen_colors(unlist(state_upper_whisker))
+map("state", fill = TRUE, col = colors)
+title("Upper Whisker of Ratio of Rent to Income, 2011")
+```
+
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-173.png) 
 
 
 ## Potential Flaws
